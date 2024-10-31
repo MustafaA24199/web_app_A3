@@ -56,7 +56,7 @@ app.get("/about", (req, res) => {
 
 // Route to display form to add items
 app.get("/items/add", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "addItems.html"));
+  res.sendFile(path.join(__dirname, "views", "additems.html"));
 });
 
 // Route to handle adding a new item with optional image upload
