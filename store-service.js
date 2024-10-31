@@ -1,17 +1,16 @@
 const fs = require('fs');
+const path = require('path');
 let items = [];
 let categories = [];
 
 // Function to initialize the data (read items and categories from JSON files)
 module.exports.initialize = () => {
   return new Promise((resolve, reject) => {
-    // Read items.json first
     fs.readFile('./data/items.json', 'utf8', (err, data) => {
       if (err) {
         reject('unable to read items file');
         return;
       }
-
       try {
         items = JSON.parse(data);
       } catch (parseError) {
@@ -19,24 +18,42 @@ module.exports.initialize = () => {
         return;
       }
 
-      // Read categories.json after items.json has been successfully loaded
       fs.readFile('./data/categories.json', 'utf8', (err, data) => {
         if (err) {
           reject('unable to read categories file');
           return;
         }
-
         try {
           categories = JSON.parse(data);
         } catch (parseError) {
           reject('unable to parse categories file');
           return;
         }
-
-        // Everything is successful, resolve the promise
         resolve();
       });
     });
+  });
+};
+
+module.exports.addItem = (itemData) => {
+  return new Promise((resolve) => {
+      // Set default values and structure the new item based on the existing JSON format
+      const newItem = {
+          id: items.length + 1,
+          category: parseInt(itemData.category) || 1, // Default to category 1 if not provided
+          postDate: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
+          featureImage: itemData.featureImage || "https://dummyimage.com/200x200/000/fff",
+          price: parseFloat(itemData.price) || 0.00, // Default to 0.00 if not provided
+          title: itemData.title || "Untitled", // Default to "Untitled" if not provided
+          body: itemData.body || "", // Empty description if not provided
+          published: itemData.published === "true" // Convert to boolean
+      };
+
+      // Add the new item to the items array
+      items.push(newItem);
+
+      // Resolve with the newly added item
+      resolve(newItem);
   });
 };
 
@@ -70,6 +87,43 @@ module.exports.getCategories = () => {
       resolve(categories);
     } else {
       reject('no results returned');
+    }
+  });
+};
+
+// Function to get items by category
+module.exports.getItemsByCategory = (categoryId) => {
+  return new Promise((resolve, reject) => {
+      const filteredItems = items.filter(item => item.category === parseInt(categoryId));
+      if (filteredItems.length > 0) {
+          resolve(filteredItems);
+      } else {
+          reject("no results returned");
+      }
+  });
+};
+
+// Function to get items by minimum date
+module.exports.getItemsByMinDate = (minDateStr) => {
+  return new Promise((resolve, reject) => {
+    const minDate = new Date(minDateStr);
+    const filteredItems = items.filter(item => new Date(item.postDate) >= minDate);
+    if (filteredItems.length > 0) {
+      resolve(filteredItems);
+    } else {
+      reject("no results returned");
+    }
+  });
+};
+
+// Function to get a single item by ID
+module.exports.getItemById = (id) => {
+  return new Promise((resolve, reject) => {
+    const item = items.find(item => item.id === parseInt(id));
+    if (item) {
+      resolve(item);
+    } else {
+      reject("no result returned");
     }
   });
 };

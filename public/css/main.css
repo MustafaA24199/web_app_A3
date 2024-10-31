@@ -110,3 +110,15 @@ a:hover {
         margin: 0 auto;
     }
 }
+
+.entry {
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ccc; /* Light gray line */
+}
+
+/* Optional: Style for list items within entries */
+.entry li {
+    list-style-type: none;
+}
+
